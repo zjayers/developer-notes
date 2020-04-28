@@ -7,6 +7,15 @@
   - [HTML](#html)
   - [CSS](#css)
   - [Javascript](#javascript)
+  - [Code Optimization](#code-optimization)
+    - [Code Performance Checking](#code-performance-checking)
+    - [Code Splitting](#code-splitting)
+      - [Component Based Chunking With React](#component-based-chunking-with-react)
+      - [Route Based Chunking With React](#route-based-chunking-with-react)
+        - [Method 1 - Manual Code Splitting](#method-1---manual-code-splitting)
+        - [Method 2 - Code Splitting with Async Components](#method-2---code-splitting-with-async-components)
+        - [Method 3 - React.lazy()](#method-3---reactlazy)
+    - [Progressive Web Apps](#progressive-web-apps)
 - [***Back End***](#back-end)
   - [CDNs](#cdns)
   - [Caching](#caching)
@@ -113,7 +122,216 @@
   ```
 
 - Avoid Long Running Javascript Files
--
+
+## Code Optimization
+
+  - ***Fast Time to first meaningful paint***
+
+  - ***Fast Time to page becoming interactive***
+
+### Code Performance Checking
+  ***Chrome Dev Tools***
+  - ***React Performance*** - add query string  `?react_perf`  to address
+  - Record and scrub through page contents
+  - Summary - Bottom Up - Call Tree - Event Log
+    - All used to show the website loading performance
+
+  ***Javascript Execution***
+
+    Request JS => JS Arrives => fetch() => Content Arrives => Page Is Now Interactive
+
+  ***Page Testing Tools***
+  - *webpagetest.org*
+
+### Code Splitting
+
+- ***Javascript benefits from being in small chunks, to avoid blocking the main thread***
+- ***Code is split between the pages they are meant for - rather than one large bundle file***
+
+  - Vendor File - always gets loaded *exp: react library*
+
+  - other files can be 'lazy-loaded' after the main file is loaded
+
+
+#### Component Based Chunking With React
+
+- https://github.com/jamiebuilds/react-loadable
+- https://reactjs.org/docs/code-splitting.html
+
+#### Route Based Chunking With React
+
+##### Method 1 - Manual Code Splitting
+  - Use import statements inside of code blocks
+
+  ```JSX
+  import React, { Component } from 'react';
+  import './App.css';
+
+  import Page1 from './Components/Page1';
+  import Page2 from './Components/Page2';
+  import Page3 from './Components/Page3';
+
+  class App extends Component {
+
+    constructor() {
+      super();
+      this.state = {
+        route: 'page1',
+        component: null
+      }
+    }
+
+    onRouteChange = (route) => {
+        //Code Splitting - manual
+        if (route === 'page1') {
+          this.setState({ route: route })
+        } else if (route === 'page2') {
+          import('./Components/Page2')
+            .then((Page2) => {
+              this.setState({ route: route, component: Page2.default })
+            })
+            .catch(err => {
+            });
+        } else {
+          import('./Components/Page3')
+            .then((Page3) => {
+              this.setState({ route: route, component: Page3.default })
+            })
+            .catch(err => {
+              console.log(err)
+            });
+        }
+    }
+
+    render() {
+        Part 2 - No Code Splitting - manual
+        if (this.state.route === 'page1') {
+          return <Page1 onRouteChange={this.onRouteChange} />
+        } else {
+          return <this.state.component onRouteChange={this.onRouteChange} />
+        }
+    }
+  }
+
+  export default App;
+  ```
+---
+##### Method 2 - Code Splitting with Async Components
+  - Use an asynchronous component to wrap components
+
+  ```JSX
+  import React, { Component } from 'react';
+  import './App.css';
+
+  import Page1 from './Components/Page1';
+  import AsyncComponent from './AsyncComponent';
+
+  class App extends Component {
+
+    constructor() {
+      super();
+      this.state = {
+        route: 'page1',
+      }
+    }
+
+    onRouteChange = (route) => {
+      this.setState({ route: route });
+    }
+
+    render() {
+        Part 3 - Cleaner Code Splitting
+        if (this.state.route === 'page1') {
+          return <Page1 onRouteChange={this.onRouteChange} />
+        } else if (this.state.route === 'page2') {
+          const AsyncPage2 = AsyncComponent(() => import("./Components/Page2"));
+          return <AsyncPage2 onRouteChange={this.onRouteChange} />
+        } else {
+          const AsyncPage3 = AsyncComponent(() => import("./Components/Page3"));
+          return <AsyncPage3 onRouteChange={this.onRouteChange} />
+        }
+    }
+  }
+
+  export default App;
+  ```
+
+  ```JSX
+  import React, { Component } from "react";
+
+  export default function asyncComponent(importComponent) {
+    class AsyncComponent extends Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          component: null
+        };
+      }
+
+      async componentDidMount() {
+        const { default: component } = await importComponent();
+
+        this.setState({
+          component: component
+        });
+      }
+
+      render() {
+        const Component = this.state.component;
+
+        return Component ? <Component {...this.props} /> : null;
+      }
+    }
+    return AsyncComponent;
+  }
+  ```
+---
+
+##### Method 3 - React.lazy()
+
+  ```JSX
+  import React, { Component, Suspense } from 'react';
+  import './App.css';
+
+  import Page1 from './Components/Page1';
+  const Page2Lazy = React.lazy(() => import('./Components/Page2'));
+  const Page3Lazy = React.lazy(() => import('./Components/Page3'));
+
+  class App extends Component {
+    constructor() {
+      super();
+      this.state = {
+        route: 'page1',
+      }
+    }
+    onRouteChange = (route) => {
+      this.setState({ route: route });
+    }
+    render() {
+      if (this.state.route === 'page1') {
+        return <Page1 onRouteChange={this.onRouteChange} />
+      } else if (this.state.route === 'page2') {
+        return (
+          <Suspense fallback={<div>Loading...</div>}>
+            <Page2Lazy onRouteChange={this.onRouteChange} />
+          </Suspense>
+        );
+      } else {
+        return (
+          <Suspense fallback={<div>Loading...</div>}>
+            <Page3Lazy onRouteChange={this.onRouteChange} />
+          </Suspense>
+        );
+      }
+    }
+  }
+
+  export default App;
+  ```
+
+### Progressive Web Apps
+
+
 
 # ***Back End***
 
