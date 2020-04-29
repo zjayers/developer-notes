@@ -8,6 +8,8 @@
   - [CSS](#css)
   - [Javascript](#javascript)
   - [Code Optimization](#code-optimization)
+    - [Tree Shaking](#tree-shaking)
+    - [React Component Performance](#react-component-performance)
     - [Code Performance Checking](#code-performance-checking)
     - [Code Splitting](#code-splitting)
       - [Component Based Chunking With React](#component-based-chunking-with-react)
@@ -16,6 +18,10 @@
         - [Method 2 - Code Splitting with Async Components](#method-2---code-splitting-with-async-components)
         - [Method 3 - React.lazy()](#method-3---reactlazy)
     - [Progressive Web Apps](#progressive-web-apps)
+      - [HTTPS](#https)
+      - [App Manifest](#app-manifest)
+      - [Service Worker](#service-worker)
+      - [Deploying](#deploying)
 - [***Back End***](#back-end)
   - [CDNs](#cdns)
   - [Caching](#caching)
@@ -128,6 +134,32 @@
   - ***Fast Time to first meaningful paint***
 
   - ***Fast Time to page becoming interactive***
+
+  - ***Only load what's needed***
+
+  - ***Avoid Blocking Main Thread***
+
+  - ***Avoid Memory Leaks***
+
+  - ***Avoid Needless Re-Rendering***
+
+### Tree Shaking
+
+  - https://developers.google.com/web/fundamentals/performance/optimizing-javascript/tree-shaking/
+
+### React Component Performance
+
+  - https://github.com/maicki/why-did-you-update
+  - Keep components from updating needlessly
+
+  ```JSX
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.state.<var> !== nextState.<var>) {
+      return true;
+    }
+    return false;
+  }
+  ```
 
 ### Code Performance Checking
   ***Chrome Dev Tools***
@@ -331,6 +363,54 @@
 
 ### Progressive Web Apps
 
+  - Works like a native (mobile) app on a browser
+  - Available Offline - Has access to hardware
+  - https://developers.google.com/web/progressive-web-apps/checklist
+
+#### HTTPS
+  - PWAs must use HTTPs to work properly
+  - https://letsencrypt.org/
+  - https://www.cloudflare.com/
+
+
+#### App Manifest
+  - Mimic the native shell
+  - `create-react-app` creates a `manifest.json` file
+  - Generate favicons for app
+  - https://realfavicongenerator.net/
+
+#### Service Worker
+  - update `serviceWorker.unregister()` to `serviceWorker.register()` in `index.js`
+  - *Service worker is currently disabled in developer tools*
+  - Script that browser runs in the background
+  - Intercepts any requests to the network and determines if the network actually needs to be accessed
+  - Workers have access to the cache API
+  - Used for features that don't need interaction
+  - Works as a programmable proxy
+  - This is the reason progressive web apps can work offline
+  - https://jakearchibald.github.io/isserviceworkerready/
+
+#### Deploying
+  - install npm package `gh-pages` as dependency
+
+  - add deploy scripts to `package.json`
+
+    ```json
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+    ```
+
+  - add homepage link to `package.json`
+
+    ```json
+    "homepage": "https://<username>.github.io/<repo name>
+    ```
+
+  - run command `npm run deploy`
+
+  - Go to github.com - navigate to repo - navigate to settings
+
+  - Enable github pages and select the `gh-pages` branch
 
 
 # ***Back End***
