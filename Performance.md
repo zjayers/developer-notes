@@ -25,6 +25,9 @@
 - [***Back End***](#back-end)
   - [CDNs](#cdns)
   - [Caching](#caching)
+    - [Browser Caching](#browser-caching)
+    - [Cache Busting](#cache-busting)
+    - [Manual Client-Side Caching](#manual-client-side-caching)
   - [Load Balancing](#load-balancing)
   - [DB Scaling](#db-scaling)
   - [GZIP](#gzip)
@@ -417,13 +420,100 @@
 
 ## CDNs
 
+  **Content Delivery Network**
+
+- Caches files in servers around the world
+
+- ***CloudFlare***
+- ***Amazon CloudFront***
+- ***Microsoft Azure CDN***
+
 ## Caching
+
+http://freecodecamp.org/news/the-hidden-compo'max-age'nents-of-web-caching-970854fe2c49/
+
+https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
+
+https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers
+
+- Use CDNs to cache files
+- Cache API information
+- Most Database Servers allow caching inside database
+- Redis - Can cache database requests
+
+  `Node Server => Redis => Database`
+
+  - CPU - have small onboard cache
+  - RAM
+  - Hard Disk Drives
+
+### Browser Caching
+
+- Client Side Caching Mechanisms
+
+  - Service Worker Caches files and sends to client
+  - Memory Cache
+  - Disk Cache
+  - Cache Storage
+  - Local Storage
+  - Session Storage
+  - IndexedDB - mini database on browser *(mobile apps)*
+
+### Cache Busting
+
+- Webpack automatically handles these situations
+- `npm run build` - builds new `.js` and `.css` files after changes are made
+
+### Manual Client-Side Caching
+
+    - Content Length: 1024
+    - Cache-Control: max-age=120
+    - ETag: "x234dff"
+- `'max-age'` = how many seconds browser will remember content - exp: `2h`
+- `304` non modified will be returned if the `ETag` has not changed
 
 ## Load Balancing
 
+- Balance multiple requests at the same time and send them to different services
+
+  - Apache Server
+
+  - NGINX
+    - Acts as reverse proxy to split loads between servers
+    - Can cache requests
+
+    `Front End CDN -> Client <- NGINX <- Servers`
+
 ## DB Scaling
 
+***Improvement Checklist***
+  1. Create Efficient Queries
+
+      `CREATE INDEX inx_name ON table_name (column_name);`
+
+  2. Increase Memory
+  3. Vertical Scaling (Redis, Memcached)
+  4. Implement Sharding
+  5. Add More Databases
+  6. Change Database Type To Better Match Needs
+
 ## GZIP
+
+- Optimizes Images & Performance
+- By Default - GZIP reduces filesize and adds a `.gz` extension
+
+  - On express apps - use
+
+    `const compression = require('compression')`
+
+    `app.use(compression)`
+
+- All modern browsers allow g-zipping
+- Github pages G-Zips by default
+
+- Alternative to G-Zip - 20% better
+
+  ***BROTLI*** - by Google
 
 # ***Network Performance***
 
