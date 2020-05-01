@@ -44,6 +44,8 @@
 
 # Star Of Security
 
+- **https://owasp.org/www-project-top-ten/**
+
 ## Injections
 
   ***https://www.hacksplaining.com/exercises/sql-injection***
